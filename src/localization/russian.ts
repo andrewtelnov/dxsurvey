@@ -101,7 +101,7 @@ export var russianSurveyStrings = {
   noEntriesReadonlyText: "Записей нет.",
   more: "Больше",
   tagboxDoneButtonCaption: "Хорошо",
-  selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
+  selectToRankEmptyRankedAreaText: "Все варианты отранжированы",
   selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их",
   ok: "Хорошо",
   cancel: "Отмена"
