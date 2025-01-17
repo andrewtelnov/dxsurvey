@@ -16,11 +16,6 @@ export class SurveyPage extends SurveyPanelBase {
     return this.panelBase as PageModel;
   }
 
-  // shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-  //   if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
-  //   return true;
-  // }
-
   protected renderElement(): React.JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();

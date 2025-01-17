@@ -32,10 +32,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.disableStateElementsRerenderEvent(this.getStateElements());
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    this.makeBaseElementsReact();
     const stateElements = this.getStateElements();
     this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
+    this.unMakeBaseElementsReactive(this.prevStateElements ?? []);
     this.prevStateElements = [];
+    this.makeBaseElementsReact();
     this.getStateElements().forEach((el) => {
       el.afterRerender();
     });
@@ -51,7 +52,6 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (this._allowComponentUpdate) {
-      this.unMakeBaseElementsReact();
       this.prevStateElements = this.getStateElements();
     }
     return this._allowComponentUpdate;
@@ -110,6 +110,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
+    this.unMakeBaseElementsReactive(els);
+  }
+  private unMakeBaseElementsReactive(els: Array<Base>) {
     for (var i = 0; i < els.length; i++) {
       this.unMakeBaseElementReact(els[i]);
     }
@@ -140,7 +143,22 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private canMakeReact(stateElement: Base): boolean {
     return !!stateElement && !!stateElement.iteratePropertiesHash;
   }
-
+  private propertyValueChangedHandler = (hash: any, key: string, val: any) => {
+    if (hash[key] !== val) {
+      hash[key] = val;
+      if (!this.canUsePropInState(key)) return;
+      if (this.isRendering) return;
+      this.changedStatePropNameValue = key;
+      this.setState((state: any) => {
+        var newState: { [index: string]: any } = {};
+        newState[key] = val;
+        return newState as S;
+      });
+    }
+  };
+  protected isCurrentStateElement(stateElement: Base) {
+    return !!stateElement && !!stateElement.setPropertyValueCoreHandler && stateElement.setPropertyValueCoreHandler === this.propertyValueChangedHandler;
+  }
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
@@ -159,29 +177,17 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
         };
       }
     });
-    stateElement.setPropertyValueCoreHandler = (
-      hash: any,
-      key: string,
-      val: any
-    ) => {
-      if (hash[key] !== val) {
-        hash[key] = val;
-        if (!this.canUsePropInState(key)) return;
-        if (this.isRendering) return;
-        this.changedStatePropNameValue = key;
-        this.setState((state: any) => {
-          var newState: { [index: string]: any } = {};
-          newState[key] = val;
-          return newState as S;
-        });
-      }
-    };
+    stateElement.setPropertyValueCoreHandler = this.propertyValueChangedHandler;
   }
   protected canUsePropInState(key: string): boolean {
     return true;
   }
   private unMakeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
+    if (!this.isCurrentStateElement(stateElement)) {
+      // eslint-disable-next-line no-console
+      console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
+    }
     stateElement.setPropertyValueCoreHandler = undefined as any;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
