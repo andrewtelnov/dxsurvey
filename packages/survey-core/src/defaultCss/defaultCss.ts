@@ -249,7 +249,9 @@ export var defaultCss = {
     errorsContainer: "sd-element__erbox sd-question__erbox",
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
     errorsContainerBottom: "sd-question__erbox--below-question",
-    confirmDialog: "sd-popup--confirm sv-popup--confirm"
+    confirmDialog: "sd-popup--confirm sv-popup--confirm",
+    singleInputTitle: "sd-title sd-singleinput__title",
+    singleInputWrapper: "sd-question__singleinput-wrapper"
   },
   image: {
     mainRoot: "sd-question sd-question--image",

@@ -15,6 +15,8 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions";
+import { Question } from "./question";
+import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -459,9 +461,59 @@ export class QuestionMatrixModel
     this.generatedVisibleRows = result;
     return result;
   }
-  protected sortVisibleRows(
-    array: Array<MatrixRowModel>
-  ): Array<MatrixRowModel> {
+  private nestedQuestionsValue: Array<Question>;
+  private getRowByName(name: string): MatrixRowModel {
+    const rows = this.visibleRows;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].name === name) return rows[i];
+    }
+    return null;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    if(!!this.nestedQuestionsValue) return this.nestedQuestionsValue;
+    const res: Array<Question> = [];
+    this.visibleRows.forEach(row => {
+      const question = <Question>Serializer.createClass("radiogroup");
+      question.name = row.name;
+      question.locTitle.sharedData = row.locText;
+      question.choices = this.visibleColumns;
+      question.value = row.value;
+      question.isRequired = this.isAllRowRequired;
+      question.setSurveyImpl(this);
+      question.setParentQuestion(this);
+      res.push(question);
+    });
+    this.nestedQuestionsValue = res;
+    return res;
+  }
+  public resetSingleInput(): void {
+    super.resetSingleInput();
+    if(this.nestedQuestionsValue) {
+      this.nestedQuestionsValue.forEach(q => q.dispose());
+      this.nestedQuestionsValue = null;
+    }
+  }
+  //#region For simple radiogroup questions setSurveyImpl
+  getSurveyData(): ISurveyData { return this; }
+  getTextProcessor(): ITextProcessor { return this.surveyImpl?.getTextProcessor(); }
+  getValue(name: string): any {
+    const row = this.getRowByName(name);
+    return !!row ? row.value : undefined;
+  }
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean, questionName?: string): any {
+    this.getRowByName(name).value = newValue;
+  }
+  getVariable(name: string): any { return this.data?.getVariable(name); }
+  setVariable(name: string, newValue: any): void { this.data?.setVariable(name, newValue); }
+  getComment(name: string): string { return this.data?.getComment(name); }
+  setComment(name: string, newValue: string, locNotification: any): any { this.data?.setComment(name, newValue, locNotification); }
+  getAllValues(): any { return this.data?.getAllValues(); }
+  getFilteredValues(): any { return this.data?.getFilteredValues(); }
+  getFilteredProperties(): any { return this.data?.getFilteredProperties(); }
+  findQuestionByName(name: string): IQuestion { return this.data?.findQuestionByName(name); }
+  getEditingSurveyElement(): Base { return this.data?.getEditingSurveyElement(); }
+  //#endregion
+  protected sortVisibleRows(array: Array<MatrixRowModel>): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)
       return array;
     var order = this.rowOrder.toLowerCase();

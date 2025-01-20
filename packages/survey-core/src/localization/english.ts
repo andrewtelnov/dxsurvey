@@ -61,6 +61,8 @@ export var englishStrings = {
   addRow: "Add Row",
   removeRow: "Remove",
   noRowsText: "There are no rows.",
+  rowIndexTemplateTitle: "Row {rowIndex}",
+  rowNameTemplateTitle: "{rowName}",
   addPanel: "Add new",
   removePanel: "Remove",
   showDetails: "Show Details",
