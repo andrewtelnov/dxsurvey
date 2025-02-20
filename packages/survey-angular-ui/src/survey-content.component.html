@@ -29,10 +29,10 @@
             </div>
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
           </div>
-          <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
           <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
             [innerHtml]="model.processedCompletedHtml | safeHtml"></div>
           <ng-template *ngIf="model.state === 'completed' && model.showCompletedPage" [component]="{ name: 'sv-components-container', data: { survey: model, container: 'completePage' } }"></ng-template>
+          <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
           <div *ngIf="model.state === 'completedbefore'" [class]="model.completedBeforeCss"
             [innerHtml]="model.processedCompletedBeforeHtml | safeHtml"></div>
           <div *ngIf="model.state === 'loading'" [class]="model.loadingBodyCss" [innerHtml]="model.processedLoadingHtml"></div>
