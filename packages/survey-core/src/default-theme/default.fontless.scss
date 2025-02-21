@@ -87,6 +87,10 @@ body {
     // z-index: 1;
     position: relative;
   }
+
+  use {
+    pointer-events: none;
+  }
 }
 
 .sd-root-modern--animation-disabled * {
