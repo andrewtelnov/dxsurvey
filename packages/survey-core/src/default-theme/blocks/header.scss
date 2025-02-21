@@ -13,7 +13,9 @@
 .sv-header__overlap {
   padding-bottom: calcSize(8);
   box-sizing: content-box;
+
   &~div {
+
     .sd-body,
     .sv-body {
       margin-top: calcSize(-14);
@@ -70,6 +72,7 @@
 .sv-header--height-auto {
   .sv-header__content {
     grid-template-rows: auto;
+    height: auto;
   }
 
   .sv-header__cell:not(.sv-header__cell--empty) .sv-header__cell-content {
@@ -188,6 +191,7 @@
   .sv-header__title .sd-title {
     color: var(--sjs-font-headertitle-color, #{$primary-foreground});
   }
+
   .sv-header__description .sd-description {
     color: $font-headerdescription-color;
   }
