@@ -360,7 +360,7 @@ QUnit.test("hintString test", function (assert) {
 
   dropdownListModel.inputStringRendered = "zzz";
   assert.notOk(dropdownListModel.showHintPrefix, "wrong filter, hint prefix hidden");
-  assert.notOk(dropdownListModel.showHintString, "wrong filter, hint hidden");
+  assert.ok(dropdownListModel.showHintString, "wrong filter, shown hidden");
 
   question.value = "item3";
   dropdownListModel.inputStringRendered = "it";

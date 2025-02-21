@@ -588,6 +588,8 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-long-item-max-width.png", Selector(".sd-question"), t, comparer);
       await t.pressKey("s e d");
       await takeElementScreenshot("tagbox-long-item-hint-max-width.png", Selector(".sd-question"), t, comparer);
+      await t.pressKey("a b c");
+      await takeElementScreenshot("tagbox-long-item-not-found.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

@@ -236,7 +236,7 @@ QUnit.test("hintString test", function (assert) {
 
   dropdownListModel.inputStringRendered = "zzz";
   assert.notOk(dropdownListModel.showHintPrefix, "wrong filter, hint prefix hidden");
-  assert.notOk(dropdownListModel.showHintString, "wrong filter, hint hidden");
+  assert.ok(dropdownListModel.showHintString, "wrong filter, hint visible");
 
   list.onItemClick(list.actions[2]);
   assert.notOk(dropdownListModel.showHintPrefix, "filter from start with value, hint prefix hidden");
