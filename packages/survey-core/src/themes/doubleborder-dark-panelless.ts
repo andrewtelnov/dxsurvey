@@ -1,4 +1,4 @@
-const Theme = {
+export default {
   "themeName": "doubleborder",
   "colorPalette": "dark",
   "isPanelless": true,
@@ -87,5 +87,3 @@ const Theme = {
     "--sjs-article-font-default-textCase": "none"
   }
 };
-export default Theme;
-export const DoubleBorderDarkPanelless = Theme;

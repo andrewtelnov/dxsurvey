@@ -6,14 +6,14 @@ export default function (options) {
   config.optimization.concatenateModules = true;
   config.devtool = "source-map";
   config.entry = {
-    "themes/index": fileURLToPath(new URL("./src/themes/index.ts", import.meta.url)),
+    "index": fileURLToPath(new URL("./src/themes/index.ts", import.meta.url)),
   };
   config.experiments = {
     outputModule: true,
   };
   config.output = {
     filename: "[name]" + ".js",
-    path: config.output.path += "/fesm",
+    path: fileURLToPath(new URL("./build/fesm/themes", import.meta.url)),
     library: {
       type: "modern-module"
     }

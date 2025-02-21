@@ -187,10 +187,10 @@ function writeTheme(themeName, isPanelless, isDarkMode) {
   const theme = getThemeObject(themeNameLowerCase, isPanelless, isDarkMode);
   const variableName = [themeName, (isDarkMode ? "Dark" : "Light"), (isPanelless ? "Panelless" : "")].join("");
   const themeJson = JSON.stringify(theme, null, 2);
-  const result = `const Theme = ${themeJson};\nexport default Theme;\nexport const ${variableName} = Theme;`;
+  const result = `export default ${themeJson};`;
   fs.writeFileSync(_dirPath + fileName + ".ts", result);
   exportedNames.push(variableName);
-  return `import { ${variableName} } from "./${fileName}";\n`;
+  return `import ${variableName} from "./${fileName}";\n`;
 }
 
 let indexFileContent = "";

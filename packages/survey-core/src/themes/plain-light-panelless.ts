@@ -1,4 +1,4 @@
-const Theme = {
+export default {
   "themeName": "plain",
   "colorPalette": "light",
   "isPanelless": true,
@@ -87,5 +87,3 @@ const Theme = {
     "--sjs-article-font-default-textCase": "none"
   }
 };
-export default Theme;
-export const PlainLightPanelless = Theme;
