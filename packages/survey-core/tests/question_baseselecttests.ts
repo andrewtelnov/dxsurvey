@@ -39,14 +39,14 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   assert.deepEqual(
     columns,
     [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
-    "check showItemsBy row"
+    "check itemFlowDirection row"
   );
   settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy column"
+    "check itemFlowDirection column"
   );
 });
 QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
@@ -107,7 +107,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - runtime"
+    "check itemFlowDirection col - runtime"
   );
 
   survey.setDesignMode(true);
@@ -119,7 +119,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - design"
+    "check itemFlowDirection col - design"
   );
   let headItems = question.headItems.map((item) => item.id);
   let footItems = question.footItems.map((item) => item.id);
@@ -163,7 +163,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - runtime"
+    "check itemFlowDirection col - runtime"
   );
 
   survey.setDesignMode(true);
@@ -175,7 +175,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - design"
+    "check itemFlowDirection col - design"
   );
   let headItems = question.headItems.map((item) => item.id);
   let footItems = question.footItems.map((item) => item.id);
@@ -2439,4 +2439,61 @@ QUnit.test("ItemValue tooltip, #9269", (assert) => {
   assert.equal(item.getTooltip(), "abc", "#2");
   item.tooltip = "edf";
   assert.equal(item.getTooltip(), "edf", "#3");
+});
+
+QUnit.test("Check QuestionSelectBase Columns Arragement", function (assert) {
+  // https://github.com/surveyjs/survey-library/issues/9487
+  let json = {
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [
+          "Item1",
+          "Item2",
+          "Item3",
+          "Item4",
+          "Item5",
+          "Item6",
+          "Item7",
+          "Item8",
+          "Item9",
+          "Item10"
+        ],
+        "colCount": 3
+      }
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  settings.itemFlowDirection = "column";
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2", "Item3", "Item4"], ["Item5", "Item6", "Item7", "Item8"], ["Item9", "Item10"]],
+    "check itemFlowDirection column"
+  );
+
+  json = {
+    elements: [{
+      "type": "radiogroup",
+      "name": "q2",
+      "choices": [
+        "Item1",
+        "Item2",
+        "Item3",
+        "Item4"
+      ],
+      "colCount": 3
+    }]
+  };
+  survey = new SurveyModel(json);
+  question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  settings.itemFlowDirection = "column";
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3"], ["Item4"]],
+    "check itemFlowDirection column (2)"
+  );
 });

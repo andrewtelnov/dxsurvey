@@ -1931,40 +1931,58 @@ export class QuestionSelectBase extends Question {
     return settings.itemFlowDirection;
   }
   get columns() {
-    var columns = [];
-    var colCount = this.getCurrentColCount();
-    if (this.hasColumns && this.renderedChoices.length > 0) {
-      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
-        this.renderedChoices : this.dataChoices;
-      if (this.itemFlowDirection === "column") {
-        var prevIndex = 0;
-        var leftElementsCount = choicesToBuildColumns.length % colCount;
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (
-            var j = prevIndex;
-            j < prevIndex + Math.floor(choicesToBuildColumns.length / colCount);
-            j++
-          ) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          if (leftElementsCount > 0) {
-            leftElementsCount--;
-            column.push(choicesToBuildColumns[j]);
-            j++;
-          }
-          prevIndex = j;
-          columns.push(column);
+    if (!this.hasColumns || this.renderedChoices.length === 0) return [];
+
+    const colCount = this.getCurrentColCount();
+    let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
+      this.renderedChoices : this.dataChoices;
+
+    if (this.itemFlowDirection === "column") {
+      return this.getColumnsWithColumnItemFlow(choicesToBuildColumns, colCount);
+    } else {
+      return this.getColumnsWithRowItemFlow(choicesToBuildColumns, colCount);
+    }
+  }
+  private getColumnsWithColumnItemFlow(choices, colCount) {
+    const columns =[];
+    let maxColumnHeight = Math.floor(choices.length / colCount);
+
+    if (choices.length % colCount) {
+      maxColumnHeight += 1;
+    }
+
+    let choicesLeft = choices.length;
+    let columnsLeft = colCount;
+    let indexShift = 0;
+
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+
+      for (let j = 0; j < maxColumnHeight; j++) {
+        if (choicesLeft <= columnsLeft) {
+          maxColumnHeight = 1;
         }
-      } else {
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (var j = i; j < choicesToBuildColumns.length; j += colCount) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          columns.push(column);
+        const choice = choices[j + indexShift];
+        if (choice) {
+          column.push(choice);
+          choicesLeft--;
         }
       }
+      columns.push(column);
+      columnsLeft--;
+      indexShift += column.length;
+    }
+
+    return columns;
+  }
+  private getColumnsWithRowItemFlow(choices, colCount) {
+    const columns = [];
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+      for (let j = i; j < choices.length; j += colCount) {
+        column.push(choices[j]);
+      }
+      columns.push(column);
     }
     return columns;
   }
