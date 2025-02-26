@@ -6,13 +6,12 @@ import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
 import { IPopupOptionsBase, PopupModel } from "./popup";
-import { calculateIsTablet } from "./popup-dropdown-view-model";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IsTouch } from "./utils/devices";
+import { IsTouch, calculateIsTablet } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {

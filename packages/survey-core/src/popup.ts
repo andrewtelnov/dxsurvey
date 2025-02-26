@@ -2,8 +2,9 @@ import { Base, EventBase } from "./base";
 import { IAction } from "./actions/action";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
-import { ConsoleWarnings } from "./console-warnings";
+import { calculateIsTablet, IsTouch } from "./utils/devices";
 
+type DisplayPopupMode = "modal-popup" | "modal-overlay" | "menu-overlay" | "menu-popup-overlay" | "menu-popup";
 export interface IPopupOptionsBase {
   onHide?: () => void;
   onShow?: () => void;
@@ -106,6 +107,44 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     this.onFooterActionsCreated.fire(this, options);
     return options.actions;
   }
+
+  public getDisplayMode(): DisplayPopupMode {
+    if (this.isModal) {
+      return this.displayMode === "popup" ? "modal-popup" : "modal-overlay";
+    } else {
+      if (this.displayMode === "popup") {
+        return "menu-popup";
+      } else {
+        let result: DisplayPopupMode;
+        switch (this.overlayDisplayMode) {
+          case "plain": {
+            result = "menu-popup";
+            break;
+          }
+          case "dropdown-overlay": {
+            result = "menu-overlay";
+            break;
+          }
+          case "tablet-dropdown-overlay": {
+            result = "menu-popup-overlay";
+            break;
+          }
+          case "auto": {
+            if (!IsTouch) {
+              result = "menu-popup"; // desktop
+            } else if (calculateIsTablet()) {
+              result = "menu-popup-overlay"; //tablet
+            } else {
+              result = "menu-overlay"; // phone
+            }
+            break;
+          }
+        }
+        return result;
+      }
+    }
+  }
+
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
     if(this.displayMode !== menuType) {
       this.setWidthByTarget = menuType === "dropdown";

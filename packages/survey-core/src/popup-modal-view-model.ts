@@ -6,8 +6,11 @@ import { preventDefaults } from "./utils/utils";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {
+    const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
-      .append("sv-popup--modal", !this.isOverlay);
+      // .append("sv-popup--modal", !this.isOverlay);
+      .append("sv-popup--modal", displayMode === "modal-popup")
+      .append("sv-popup--modal-overlay", displayMode === "modal-overlay");
   }
   protected getShowFooter(): boolean {
     return true;
@@ -15,14 +18,32 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
 
+    this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
+      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
+        item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn"
+      });
+    };
+
     this.footerToolbar.containerCss = "sv-footer-action-bar";
-    this.footerToolbarValue.addAction(<IAction>{
-      id: "apply",
-      visibleIndex: 20,
-      title: this.applyButtonText,
-      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--apply sd-btn sd-btn--action",
-      action: () => { this.apply(); }
-    });
+    let footerActions = [
+      <IAction>{
+        id: "cancel",
+        visibleIndex: 10,
+        title: this.cancelButtonText,
+        innerCss: "sv-popup__button--cancel",
+        action: () => { this.cancel(); }
+      },
+      <IAction>{
+        id: "apply",
+        visibleIndex: 20,
+        title: this.applyButtonText,
+        innerCss: "sv-popup__button--apply sd-btn--action",
+        action: () => { this.apply(); }
+      }
+    ];
+
+    footerActions = this.model.updateFooterActions(footerActions);
+    this.footerToolbarValue.setItems(footerActions);
   }
 
   constructor(model: PopupModel) {

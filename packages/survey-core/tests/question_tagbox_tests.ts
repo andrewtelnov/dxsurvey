@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
-import { PopupBaseViewModel } from "../src/popup-view-model";
+import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 import { _setIsTouch } from "../src/utils/devices";
 import { settings } from "../src/settings";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -1012,7 +1012,7 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
-  const popupViewModel = new PopupBaseViewModel(popupModel);
+  const popupViewModel = new PopupDropdownViewModel(popupModel);
   const doneAction = popupViewModel.footerToolbar.actions[1];
   const cancelAction = popupViewModel.footerToolbar.actions[0];
   const listModel = dropdownListModel["listModel"];

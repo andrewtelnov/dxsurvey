@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
 import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL } from "../src/utils/utils";
-import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
+import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
@@ -1089,4 +1089,19 @@ QUnit.test("test isBase64", (assert) => {
   assert.notOk(isBase64URL("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.notOk(isBase64URL("image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.notOk(isBase64URL("https://localhost:7777/image.jpg"));
+});
+
+QUnit.test("calculateIsTablet function", (assert) => {
+  let result = calculateIsTablet(300, 300);
+  assert.notOk(result);
+  result = calculateIsTablet(300, 600);
+  assert.notOk(result);
+  result = calculateIsTablet(600, 300);
+  assert.notOk(result);
+  result = calculateIsTablet(600, 600);
+  assert.ok(result);
+  result = calculateIsTablet(700, 600);
+  assert.ok(result);
+  result = calculateIsTablet(700, 700);
+  assert.ok(result);
 });

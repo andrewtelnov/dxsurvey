@@ -42,6 +42,14 @@ mouseInfo.hasMouse = detectMouseSupport(matchMediaMethod);
 
 export let IsTouch = mouseInfo.isTouch;
 
+export function calculateIsTablet(windowWidth?: number, windowHeight?: number, tabletSizeBreakpoint = 600): boolean {
+  const _windowWidth = windowWidth || DomWindowHelper.getInnerWidth();
+  const _windowHeight = windowHeight || DomWindowHelper.getInnerHeight();
+  const width = Math.min(_windowWidth, _windowHeight);
+  const isTablet = width >= tabletSizeBreakpoint;
+  return isTablet;
+}
+
 //for tests
 export function _setIsTouch(val: boolean): void {
   IsTouch = val;

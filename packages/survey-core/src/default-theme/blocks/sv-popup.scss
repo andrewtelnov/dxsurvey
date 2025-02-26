@@ -67,21 +67,23 @@ sv-popup {
   box-sizing: border-box;
 }
 
-.sv-popup--modal > .sv-popup__container {
-  position: static;
-  display: flex;
-}
+.sv-popup--modal {
+  & > .sv-popup__container {
+    position: static;
+    display: flex;
+  }
 
-.sv-popup--modal > .sv-popup__container > .sv-popup__body-content {
-  background-color: $background-dim-light;
-  padding: calcSize(4);
-  height: auto;
-  gap: calcSize(4);
-}
-.sv-popup--modal .sv-popup__body-footer .sv-footer-action-bar {
-  overflow: visible;
-}
+  & > .sv-popup__container > .sv-popup__body-content {
+    background-color: $background-dim-light;
+    padding: calcSize(4);
+    height: auto;
+    gap: calcSize(4);
+  }
 
+  .sv-popup__body-footer .sv-footer-action-bar {
+    overflow: visible;
+  }
+}
 .sv-popup--confirm {
   .sv-popup__container {
     border-radius: calcSize(1);
@@ -122,54 +124,6 @@ sv-popup {
 
 .sd-root-modern--mobile .sv-popup--confirm .sv-popup__body-content {
   min-width: auto;
-}
-
-.sv-popup--overlay {
-  width: 100%;
-  height: $popup-overlay-height;
-
-  .sv-popup__container {
-    background: $background-semitransparent;
-    max-width: 100vw;
-    max-height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
-    height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
-    width: 100%;
-    padding-top: calcSize(2);
-    border: unset;
-    box-shadow: unset;
-    box-sizing: content-box;
-  }
-
-  .sv-popup__body-content {
-    max-height: $popup-overlay-height;
-    max-width: 100vw;
-    border-radius: calcCornerRadius(4) calcCornerRadius(4) 0px 0px;
-    background: $background;
-    padding: calcSize(3) calcSize(2) calcSize(2);
-    height: calc(100% - calc(1 * #{$base-unit}));
-  }
-
-  .sv-popup__scrolling-content {
-    height: calc(100% - (10 * var(--base-unit, 8px)));
-  }
-
-  .sv-popup__body-footer .sv-action-bar {
-    width: 100%;
-  }
-
-  .sv-popup__body-footer-item {
-    width: 100%;
-  }
-
-  .sv-popup__body-footer .sv-action {
-    flex: 1 0 0;
-  }
-
-  .sv-popup__button.sv-popup__button {
-    background-color: $primary;
-    border: 2px solid $primary;
-    color: $primary-foreground;
-  }
 }
 
 .sv-popup--modal .sv-popup__scrolling-content {
@@ -268,6 +222,7 @@ sv-popup {
 }
 
 .sv-popup--modal,
+.sv-popup--menu-overlay,
 .sv-popup--overlay {
   .sv-list__filter {
     padding-top: calcSize(1);
@@ -278,6 +233,7 @@ sv-popup {
   }
 }
 
+.sv-popup--menu,
 .sv-popup--dropdown {
   .sv-list__filter {
     margin-bottom: calcSize(1);
@@ -285,98 +241,84 @@ sv-popup {
 
   .sv-popup__body-content {
     background-color: $background;
-    padding: calcSize(1) 0;
+    padding: calcSize(0.5) 0;
     height: 100%;
   }
 }
 
-.sv-popup--dropdown > .sv-popup__container > .sv-popup__body-content .sv-list {
-  background-color: transparent;
-}
-
-.sv-dropdown-popup {
-  .sv-popup__body-content {
-    padding: calcSize(0.5) 0;
-  }
-
-  .sv-list__filter {
-    margin-bottom: 0;
-  }
-}
-
-.sv-popup--overlay {
-  .sv-popup__body-content {
-    background-color: $background-dim;
-    gap: calcSize(2);
-  }
-}
-
-//styles for dropdown overlay
-.sv-popup--dropdown-overlay {
+.sv-popup--menu-overlay {
   z-index: 2001;
   padding: 0;
 
+  width: 100%;
+  height: $popup-overlay-height;
+
+  .sv-popup__container {
+    background: $background-semitransparent;
+    max-width: 100vw;
+    max-height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
+    height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
+    width: 100%;
+    padding-top: 0;
+    border: unset;
+    box-shadow: unset;
+    box-sizing: content-box;
+  }
+
   .sv-popup__body-content {
+    max-height: $popup-overlay-height;
+    max-width: 100vw;
+    border-radius: calcCornerRadius(4) calcCornerRadius(4) 0px 0px;
+    background: $background;
+    padding: calcSize(3) calcSize(2) calcSize(2);
+    height: calc(100% - calc(1 * #{$base-unit}));
+
+    background-color: $background-dim;
+    height: calc(var(--sv-popup-overlay-height, 100vh));
     padding: 0;
     border-radius: 0;
+    gap: 0;
+  }
+
+  .sv-popup__body-footer-item {
+    width: 100%;
   }
 
   .sv-popup__body-footer .sv-action-bar {
+    width: 100%;
+
     .sv-action {
+      flex: 1 0 0;
       flex: 0 0 auto;
     }
   }
 
-  .sv-popup__button.sv-popup__button {
-    background-color: transparent;
-    color: $primary;
-    border: none;
-    box-shadow: none;
-    padding: calcSize(0.5) calcSize(2);
-    border-radius: calcSize(12.5);
-  }
-
-  .sv-popup__container {
-    max-height: calc(var(--sv-popup-overlay-height, 100vh));
-    height: calc(var(--sv-popup-overlay-height, 100vh));
-    padding-top: 0;
-  }
-
-  .sv-popup__body-content {
-    height: calc(var(--sv-popup-overlay-height, 100vh));
-    gap: 0;
-  }
-
   .sv-popup__body-footer {
-    background-color: $background-dim;
-    padding-top: calcSize(1);
-    padding-bottom: calcSize(1);
-    border-top: 1px solid $border-light;
+    padding: var(--lbr-popup-menu-footer-padding-top, calcSize(0.5)) var(--lbr-popup-menu-footer-padding-right, 0px)
+      var(--lbr-popup-menu-footer-padding-bottom, calcSize(0.5)) var(--lbr-popup-menu-footer-padding-left, 0px);
+    border-top: var(--lbr-popup-menu-footer-border-width-top, 1px) solid
+      var(--lbr-popup-menu-footer-border-color, $border-light);
+    background: var(--lbr-popup-menu-footer-background-color, $background-dim);
   }
 
   .sv-popup__scrolling-content {
     height: calc(100% - 6 * var(--base-unit, 8px));
   }
 
-  .sv-list__filter-icon .sv-svg-icon {
-    width: calcSize(3);
-    height: calcSize(3);
-  }
-
-  .sv-list__container {
-    padding: 0;
-  }
-
-  .sv-list {
-    flex-grow: 1;
-    padding: calcSize(1) 0;
-  }
-
   .sv-list__filter {
     display: flex;
     align-items: center;
     margin-bottom: 0;
-    padding: calcSize(1.5) calcSize(1) calcSize(1.5) calcSize(2);
+    padding: calcSize(2);
+  }
+
+  .sv-list {
+    padding: calcSize(0.5);
+    flex-grow: 1;
+  }
+
+  .sv-list__container {
+    padding: 0;
   }
 
   .sv-list__filter-icon {
@@ -391,12 +333,6 @@ sv-popup {
     flex-grow: 1;
     padding: calcSize(1) calcSize(0.5);
     background-color: $background;
-  }
-
-  .sv-popup__button:disabled {
-    pointer-events: none;
-    color: $foreground;
-    opacity: 0.25;
   }
 
   .sv-list__filter-clear-button {
@@ -423,7 +359,7 @@ sv-popup {
     font-size: max(16px, calcFontSize(1));
     line-height: max(24px, calcLineHeight(1.5));
     font-family: $font-family;
-    padding: calcSize(0.5) 0 calcSize(0.5) calcSize(2);
+    padding: calcSize(0.5) calcSize(0.5) calcSize(0.5) calcSize(1);
   }
 
   .sv-list__item:hover,
@@ -445,57 +381,25 @@ sv-popup {
   .sv-popup__body-footer .sv-action-bar {
     justify-content: flex-start;
   }
-}
 
-.sv-dropdown-popup.sv-popup--dropdown-overlay {
-  .sv-list__filter {
-    padding: calcSize(0.5) calcSize(1) calcSize(0.5) calcSize(2.5);
-  }
-
-  .sv-list {
-    padding: calcSize(0.5);
-  }
-
-  .sv-popup__button.sv-popup__button {
-    padding: calcSize(1) calcSize(2.5);
-  }
-
-  .sv-popup__body-footer {
-    padding-top: calcSize(0.5);
-    padding-bottom: calcSize(0.5);
-    background-color: $background-dim-light;
-  }
-
-  .sv-list__filter-icon .sv-svg-icon {
-    width: calcSize(2);
-    height: calcSize(2);
-  }
-
-  .sv-list__filter-icon {
-    height: calcSize(2);
-  }
-
-  .sv-list__input {
-    padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
-  }
-}
-
-.sv-popup--dropdown-overlay.sv-multi-select-list {
-  .sv-list__item:hover,
-  .sv-list__item:focus,
-  .sv-list__item--focused {
-    &.sv-list__item--selected {
-      .sv-list__item-body {
-        background: $primary-light;
-        color: $foreground;
-        font-weight: 400;
+  &.sv-multi-select-list {
+    .sv-list__item:hover,
+    .sv-list__item:focus,
+    .sv-list__item--focused {
+      &.sv-list__item--selected {
+        .sv-list__item-body {
+          background: $primary-light;
+          color: $foreground;
+          font-weight: 400;
+        }
       }
     }
   }
 }
 
-.sv-popup--dropdown-overlay.sv-popup--tablet {
+.sv-popup--menu-tablet {
   background: $background-semitransparent;
+
   .sv-popup__container {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
     --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);

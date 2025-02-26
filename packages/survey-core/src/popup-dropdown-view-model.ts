@@ -7,14 +7,7 @@ import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-
-export function calculateIsTablet(windowWidth?: number, windowHeight?: number): boolean {
-  const _windowWidth = windowWidth || DomWindowHelper.getInnerWidth();
-  const _windowHeight = windowHeight || DomWindowHelper.getInnerHeight();
-  const width = Math.min(_windowWidth, _windowHeight);
-  const isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
-  return isTablet;
-}
+import { IAction } from "./actions/action";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
@@ -25,9 +18,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       return;
     }
     this.hidePopup();
-  }
-  private calculateIsTablet(windowWidth?: number, windowHeight?: number) {
-    this.isTablet = calculateIsTablet(windowWidth, windowHeight);
   }
   private resizeEventCallback = () => {
     if(!DomWindowHelper.isAvailable()) return;
@@ -44,12 +34,36 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
   };
   private clientY: number = 0;
-  @property() private isTablet = false;
+
   private touchStartEventCallback = (event: any) => {
     this.clientY = event.touches[0].clientY;
   }
   private touchMoveEventCallback = (event: any) => {
     this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
+  }
+
+  protected createFooterActionBar(): void {
+    super.createFooterActionBar();
+
+    this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
+      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
+        item: "sd-action sv-menu-popup__button"
+      });
+    };
+
+    this.footerToolbar.containerCss = "sv-footer-action-bar";
+    let footerActions = [
+      <IAction>{
+        id: "cancel",
+        visibleIndex: 10,
+        title: this.cancelButtonText,
+        innerCss: "sv-popup__button--cancel",
+        action: () => { this.cancel(); }
+      }
+    ];
+
+    footerActions = this.model.updateFooterActions(footerActions);
+    this.footerToolbarValue.setItems(footerActions);
   }
 
   protected getAvailableAreaRect(): Rect {
@@ -198,13 +212,22 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return actualHorizontalPosition;
   }
   protected getStyleClass(): CssClassBuilder {
-    const overlayMode = this.model.overlayDisplayMode;
+    // const overlayMode = this.model.overlayDisplayMode;
+    const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
-      .append("sv-popup--dropdown", !this.isOverlay)
-      .append("sv-popup--dropdown-overlay", this.isOverlay && overlayMode !== "plain")
-      .append("sv-popup--tablet", this.isOverlay && (overlayMode == "tablet-dropdown-overlay" || (overlayMode == "auto" && this.isTablet)))
-      .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
-      .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
+      .append("sv-popup--menu")
+      .append("sv-popup--menu-overlay", displayMode === "menu-overlay" || displayMode === "menu-popup-overlay")
+      .append("sv-popup--menu-phone", displayMode === "menu-overlay")
+      .append("sv-popup--menu-tablet", displayMode === "menu-popup-overlay")
+      .append("sv-popup--dropdown", displayMode === "menu-popup")
+      .append("sv-popup--show-pointer", displayMode === "menu-popup" && this.showHeader)
+      .append(`sv-popup--${this.popupDirection}`, displayMode === "menu-popup" && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
+
+    // .append("sv-popup--dropdown", !this.isOverlay)
+    // .append("sv-popup--dropdown-overlay", this.isOverlay && overlayMode !== "plain")
+    // .append("sv-popup--menu-tablet", this.isOverlay && (overlayMode == "tablet-dropdown-overlay" || (overlayMode == "auto" && this.isTablet)))
+    // .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
+    // .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
   protected getShowHeader(): boolean {
     return this.model.showPointer && !this.isOverlay;
@@ -246,7 +269,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
-      this.calculateIsTablet();
       this.resizeEventCallback();
     }
     DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);

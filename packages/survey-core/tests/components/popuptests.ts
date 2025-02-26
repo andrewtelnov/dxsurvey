@@ -309,15 +309,15 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
-  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--menu sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
 
   viewModel.popupDirection = "down";
-  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--down");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--menu sv-popup--dropdown sv-popup--show-pointer sv-popup--down");
 
   model.showPointer = false;
-  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--menu sv-popup--dropdown");
 
   viewModel.dispose();
   targetElement.remove();
@@ -1101,9 +1101,9 @@ QUnit.test("PopupModel dropdown displayMode", (assert) => {
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
-  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.displayMode = "overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown");
 
   viewModel.dispose();
   targetElement.remove();
@@ -1117,38 +1117,23 @@ QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => 
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
-
-  assert.equal(viewModel["isTablet"], false, "isTablet false");
   assert.equal(model.overlayDisplayMode, "auto");
 
-  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left", "isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown sv-popup--show-pointer sv-popup--left", "default");
   model.displayMode = "overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode auto, isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown", "overlayDisplayMode auto");
 
   model.overlayDisplayMode = "dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--menu-overlay sv-popup--menu-phone", "overlayDisplayMode dropdown-overlay");
 
   model.overlayDisplayMode = "tablet-dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--menu-overlay sv-popup--menu-tablet", "overlayDisplayMode tablet-dropdown-overlay");
 
   model.overlayDisplayMode = "plain";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown", "overlayDisplayMode plain");
 
   model.overlayDisplayMode = "auto";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode auto, isTablet false");
-
-  viewModel["calculateIsTablet"](600, 600);
-  assert.equal(viewModel["isTablet"], true, "isTablet true");
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode auto, isTablet true");
-
-  model.overlayDisplayMode = "dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet true");
-
-  model.overlayDisplayMode = "tablet-dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet true");
-
-  model.overlayDisplayMode = "plain";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet true");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown", "overlayDisplayMode auto");
 
   viewModel.dispose();
   targetElement.remove();
@@ -1164,7 +1149,7 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
 
   assert.equal(viewModel.styleClass, "sv-popup--modal");
   model.displayMode = "overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay");
+  assert.equal(viewModel.styleClass, "sv-popup--modal-overlay");
 
   viewModel.dispose();
   targetElement.remove();
@@ -1512,25 +1497,6 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   targetElement.remove();
 });
 
-QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
-  const targetElement: HTMLElement = document.createElement("button");
-  const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
-  viewModel["calculateIsTablet"](300, 300);
-  assert.notOk(viewModel["isTablet"]);
-  viewModel["calculateIsTablet"](300, 600);
-  assert.notOk(viewModel["isTablet"]);
-  viewModel["calculateIsTablet"](600, 300);
-  assert.notOk(viewModel["isTablet"]);
-  viewModel["calculateIsTablet"](600, 600);
-  assert.ok(viewModel["isTablet"]);
-  viewModel["calculateIsTablet"](700, 600);
-  assert.ok(viewModel["isTablet"]);
-  viewModel["calculateIsTablet"](700, 700);
-  assert.ok(viewModel["isTablet"]);
-
-  targetElement.remove();
-});
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
@@ -1552,7 +1518,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   popupContainer.style.height = "400px";
 
   model.displayMode = "overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay");
+  assert.equal(viewModel.styleClass, "sv-popup--menu sv-popup--dropdown");
 
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px");
