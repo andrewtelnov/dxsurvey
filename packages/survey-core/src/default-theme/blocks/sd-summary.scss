@@ -1,0 +1,118 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
+.sd-summary {
+  border-radius: var(--lbr-data-table-corner-radius, calcSize(0.5));
+  background: var(--lbr-data-table-background-color, $background);
+  box-shadow: var(--lbr-data-table-shadow-offset-x, 0px) var(--lbr-data-table-shadow-offset-y, 1px)
+    var(--lbr-data-table-shadow-blur, 2px) var(--lbr-data-table-shadow-spread, 0px)
+    var(--lbr-data-table-shadow-color, rgba(0, 0, 0, 0.15));
+  overflow: hidden;
+}
+
+.sd-summary-row {
+  display: flex;
+  padding: var(--lbr-data-table-row-padding-top, calcSize(1)) var(--lbr-data-table-row-padding-right, calcSize(2))
+    var(--lbr-data-table-row-padding-bottom, calcSize(1)) var(--lbr-data-table-row-padding-left, calcSize(2));
+  align-items: flex-start;
+  gap: var(--lbr-data-table-row-gap, calcSize(4));
+  flex: 1 0 0;
+  align-self: stretch;
+
+  border-bottom: var(--lbr-data-table-row-border-width-bottom, 1px) solid
+    var(--lbr-data-table-row-border-color, $border-light);
+  background: var(--lbr-data-table-row-background-color, $background);
+}
+
+.sd-summary-row__content {
+  display: flex;
+  padding: var(--lbr-data-table-row-text-margin-top, calcSize(0.5)) 0px
+    var(--lbr-data-table-row-text-margin-bottom, calcSize(0.5)) 0px;
+  align-items: flex-start;
+  gap: var(--lbr-data-table-row-gap, calcSize(4));
+  flex: 1 0 0;
+
+  color: var(--lbr-data-table-row-text-color-title, $foreground);
+  @include mixins.defaultFont;
+}
+
+.sd-summary-row__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lbr-data-table-actions-gap, calcSize(1));
+  opacity: 0;
+  transition: opacity $transition-duration;
+}
+
+.sd-summary-row:hover,
+.sd-question--mobile {
+  .sd-summary-row__actions {
+    opacity: 1;
+  }
+}
+
+.sd-summary-row-action {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: flex;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  color: unset;
+
+  font-family: $font-family;
+  overflow-x: hidden;
+  white-space: nowrap;
+
+  display: flex;
+  padding: var(--lbr-action-button-padding-top, calcSize(1))
+    var(--lbr-action-button-padding-right-icon-only, calcSize(1)) var(--lbr-action-button-padding-bottom, calcSize(1))
+    var(--lbr-action-button-padding-left-icon-only, calcSize(1));
+  justify-content: center;
+  align-items: center;
+  gap: var(--lbr-action-button-gap, calcSize(1));
+
+  border-radius: var(--lbr-action-button-corner-radius, 1024px);
+  transition: background-color $transition-duration;
+  &:hover,
+  &:focus {
+    outline: none;
+    background-color: var(--lbr-action-button-background-color-hovered-positive, $primary-light);
+  }
+
+  //pressed state
+  &:active,
+  &.svc-toolbar__item--pressed {
+    opacity: 0.5;
+  }
+
+  //checked state
+  &.svc-toolbar__item--active {
+    outline: none;
+  }
+
+  //disabled state
+  &:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+}
+
+.sd-summary-row-action--edit {
+  use {
+    fill: var(--lbr-action-button-icon-color-positive, $primary);
+  }
+}
+.sd-summary-row-action--delete {
+  &:hover,
+  &:focus {
+    outline: none;
+    background-color: var(--lbr-action-button-background-color-hovered-negative, $red-light);
+  }
+  use {
+    fill: var(--lbr-action-button-icon-color-negative, $red);
+  }
+}

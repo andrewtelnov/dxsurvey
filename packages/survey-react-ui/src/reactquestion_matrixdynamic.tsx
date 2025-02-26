@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
-import { QuestionMatrixDynamicModel } from "survey-core";
+import { Question, QuestionMatrixDynamicModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 
@@ -39,15 +39,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return this.renderAddRowButton(cssClasses);
   }
   protected renderNoRowsContent(cssClasses: any): React.JSX.Element {
-    const text: React.JSX.Element = this.renderLocString(this.matrix.locNoRowsText);
-    const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
-    const btn: React.JSX.Element | undefined = this.matrix.renderedTable.showAddRow ? this.renderAddRowButton(cssClasses, true) : undefined;
-    return (
-      <div className={cssClasses.noRowsSection}>
-        {textDiv}
-        {btn}
-      </div>
-    );
+    return ReactElementFactory.Instance.createElement("sv-placeholder-matrixdynamic", { cssClasses: cssClasses, question: this.matrix });
   }
   protected renderAddRowButton(
     cssClasses: any,
@@ -93,9 +85,32 @@ export class SurveyQuestionMatrixDynamicAddButton extends ReactSurveyElement {
   }
 }
 
-ReactElementFactory.Instance.registerElement(
-  "sv-matrixdynamic-add-btn",
-  (props) => {
-    return React.createElement(SurveyQuestionMatrixDynamicAddButton, props);
+export class SurveyQuestionMatrixDynamicPlaceholder extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
   }
-);
+  protected renderElement(): React.JSX.Element {
+    const cssClasses = this.props.cssClasses;
+    const matrix = this.props.question;
+    const showAddButton = matrix.renderedTable.showAddRow;
+    const text: React.JSX.Element = this.renderLocString(matrix.locNoRowsText);
+    const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
+    const btn: React.JSX.Element | undefined = showAddButton ? this.renderAddRowButton(cssClasses, matrix) : undefined;
+    return (
+      <div className={cssClasses.noRowsSection}>
+        {textDiv}
+        {btn}
+      </div>
+    );
+  }
+  protected renderAddRowButton(cssClasses: any, question: Question): React.JSX.Element {
+    return ReactElementFactory.Instance.createElement("sv-matrixdynamic-add-btn", {
+      question: question, cssClasses: cssClasses, isEmptySection: true });
+  }
+}
+
+ReactElementFactory.Instance.registerElement("sv-matrixdynamic-add-btn",
+  (props) => { return React.createElement(SurveyQuestionMatrixDynamicAddButton, props); });
+
+ReactElementFactory.Instance.registerElement("sv-placeholder-matrixdynamic",
+  (props) => { return React.createElement(SurveyQuestionMatrixDynamicPlaceholder, props); });

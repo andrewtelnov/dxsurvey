@@ -194,6 +194,7 @@ export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
 export { Question } from "../../src/question";
+export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {

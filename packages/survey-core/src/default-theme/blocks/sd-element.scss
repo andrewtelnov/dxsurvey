@@ -70,6 +70,13 @@
   }
 }
 
+.sd-element__title.sd-element__title--singleinput {
+  span {
+    @include mixins.page_title();
+  }
+}
+
+
 .sd-element__num {
   float: left;
   padding-top: calcSize(0.625);

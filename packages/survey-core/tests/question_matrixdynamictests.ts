@@ -10376,6 +10376,26 @@ QUnit.test("column width settings passed to all rows", function (assert) {
   assert.equal(table.rows[3].cells[0].width, "15%", "The second row cell width 15%");
   assert.equal(table.rows[3].cells[0].minWidth, "10%", "The second row cell min width 10%");
 });
+QUnit.test("cell title renderedHtml is incorrect on adding/removing rows ", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "col1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].cells[0].question.locTitle.renderedHtml, "row 1, column col1", "#1");
+  assert.equal(rows[1].cells[0].question.locTitle.renderedHtml, "row 2, column col1", "#2");
+  matrix.removeRow(0);
+  matrix.addRow();
+  assert.equal(rows[0].cells[0].question.locTitle.renderedHtml, "row 1, column col1", "#3");
+  assert.equal(rows[1].cells[0].question.locTitle.renderedHtml, "row 2, column col1", "#4");
+});
 QUnit.test("Use matrix rows id & cells questions id in rendered table, Bug#9233", function (assert) {
   var survey = new SurveyModel({
     elements: [

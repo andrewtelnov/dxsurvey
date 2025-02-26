@@ -1322,9 +1322,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     if (!this.contentPanel) return;
-    this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?

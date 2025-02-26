@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { SurveyModel, QuestionPanelDynamicModel } from "survey-core";
+import { SurveyModel, Question, QuestionPanelDynamicModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
@@ -8,6 +8,7 @@ import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-
 import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
 import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
 import { ReactElementFactory } from "./element-factory";
+import { ReactSurveyElement } from "./reactquestion_element";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -43,13 +44,14 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderElement(): React.JSX.Element {
     const panels: Array<React.JSX.Element> = [];
+    const cssClasses = this.question.cssClasses;
     this.question.renderedPanels.forEach((panel, index) => {
       panels.push(<SurveyQuestionPanelDynamicItem
         key={panel.id}
         element={panel}
         question={this.question}
         index={index}
-        cssClasses={this.question.cssClasses}
+        cssClasses={cssClasses}
         isDisplayMode={this.isDisplayMode}
         creator={this.creator}
       />);
@@ -65,13 +67,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       : null;
 
     const navV2 = this.renderNavigatorV2();
-    const noEntriesPlaceholder = this.renderPlaceholder();
+    const noEntriesPlaceholder = this.renderPlaceholder(cssClasses);
     return (
-      <div className={this.question.cssClasses.root}>
+      <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
         {noEntriesPlaceholder}
         {navTop}
-        <div className={this.question.cssClasses.panelsContainer}>
+        <div className={cssClasses.panelsContainer}>
           {panels}
         </div>
         {navBottom}
@@ -153,15 +155,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>) : null}
     </div>);
   }
-  protected renderPlaceholder(): React.JSX.Element | null {
-    if (this.question.getShowNoEntriesPlaceholder()) {
-      return (
-        <div className={this.question.cssClasses.noEntriesPlaceholder}>
-          <span>{this.renderLocString(this.question.locNoEntriesText)}</span>
-          {this.renderAddRowButton()}
-        </div>
-      );
-    }
+  protected renderPlaceholder(cssClasses: any): React.JSX.Element | null {
+    if (this.question.getShowNoEntriesPlaceholder())
+      return ReactElementFactory.Instance.createElement("sv-placeholder-paneldynamic", { cssClasses: cssClasses, question: this.question });
     return null;
   }
 }
@@ -206,3 +202,27 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
 ReactQuestionFactory.Instance.registerQuestion("paneldynamic", props => {
   return React.createElement(SurveyQuestionPanelDynamic, props);
 });
+
+export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+  }
+  protected renderElement(): React.JSX.Element {
+    const cssClasses = this.props.cssClasses;
+    const question = this.props.question;
+    return (
+      <div className={cssClasses.noEntriesPlaceholder}>
+        <span>{this.renderLocString(question.locNoEntriesText)}</span>
+        {this.renderAddRowButton(question)}
+      </div>
+    );
+  }
+  protected renderAddRowButton(question: Question): React.JSX.Element {
+    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
+      data: { question: question }
+    });
+  }
+}
+
+ReactElementFactory.Instance.registerElement("sv-placeholder-paneldynamic",
+  (props) => { return React.createElement(SurveyQuestionPanelDynamicPlaceholder, props); });

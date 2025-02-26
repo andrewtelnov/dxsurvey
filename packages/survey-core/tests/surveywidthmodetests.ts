@@ -113,6 +113,38 @@ QUnit.test("Survey widthMode property for matrices questions", function (assert)
   assert.equal(survey3.calculateWidthMode(), "responsive", "calculate width for survey with matrices");
 });
 
+QUnit.test("Survey widthMode for 'input per page'", function (assert) {
+  var survey3 = new SurveyModel({
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "question1",
+            "columns": [
+              "Column 1",
+              "Column 2",
+              "Column 3"
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  });
+  assert.equal(survey3.widthMode, "auto");
+  assert.equal(survey3.calculateWidthMode(), "responsive", "calculate width for survey with matrices in standard mode");
+  survey3.questionsOnPageMode = "inputPerPage";
+  assert.equal(survey3.calculateWidthMode(), "static", "calculate width for survey with matrices in input per page mode");
+});
+
 QUnit.test("Survey widthMode - css", function (assert) {
   var survey = new SurveyModel({
     "elements": [

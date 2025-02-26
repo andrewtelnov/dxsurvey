@@ -32,6 +32,7 @@ import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -295,6 +296,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("prevPanelText", this, false, "pagePrevText");
     this.createLocalizableString("nextPanelText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
+    this.createLocalizableString("editPanelText", this, false, "editText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
     this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
     this.registerPropertyChangedHandlers(["panelsState"], () => {
@@ -954,6 +956,7 @@ export class QuestionPanelDynamicModel extends Question
     if (val == this.panelsCore.length || this.useTemplatePanel) return;
     this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
+    const isAddingOnePanel = val - this.panelCount === 1;
     for (let i = this.panelCount; i < val; i++) {
       const panel = this.createNewPanel();
       this.panelsCore.push(panel);
@@ -966,6 +969,9 @@ export class QuestionPanelDynamicModel extends Question
           }
         }
       }
+    }
+    if(isAddingOnePanel) {
+      this.singleInputOnAddItem();
     }
     if (val < this.panelCount) {
       this.panelsCore.splice(val, this.panelCount - val);
@@ -1173,6 +1179,94 @@ export class QuestionPanelDynamicModel extends Question
   public set templateErrorLocation(value: string) {
     this.setPropertyValue("templateErrorLocation", value.toLowerCase());
   }
+  public resetSingleInput(): void {
+    super.resetSingleInput();
+    this.locTemplateTitle.onGetTextCallback = null;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    this.onFirstRendering();
+    const res = super.getSingleInputQuestions();
+    res.push(this);
+    return res;
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
+    const res = this.locTemplateTitle;
+    res.onGetTextCallback = (text: string): string => {
+      const q = this.singleInputQuestion;
+      if(!q) return text;
+      return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
+    };
+    return res;
+  }
+  private processSingleInputTitle(text: string, panel: PanelModel): string {
+    if(!text) text = this.getSingleInputTitleTemplate();
+    if(!panel) return text;
+    return panel.getProcessedText(text);
+  }
+  private getSingleInputTitleTemplate(): string {
+    return this.getLocalizationString("panelDynamicTabTextFormat");
+  }
+  private getPanelByQuestion(question: Question): PanelModel {
+    let parent = question.parent;
+    while(!!parent && !!parent.parent) {
+      parent = parent.parent;
+    }
+    return <PanelModel>parent;
+  }
+  protected getSingleInputAddTextCore(): string {
+    if(!this.canAddPanel) return undefined;
+    return this.panelAddText;
+  }
+  protected singleInputAddItemCore(): void {
+    this.addPanelUI();
+  }
+  protected singleInputRemoveItemCore(question: Question): void {
+    const panel = this.getPanelByQuestion(question);
+    const index = this.visiblePanelsCore.indexOf(panel);
+    this.removePanelUI(index);
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const panels = this.visiblePanelsCore;
+    if(panels.length > 0) {
+      if(index < 0 || index >= panels.length) index = panels.length - 1;
+      const row = panels[index];
+      const vQs = row.visibleQuestions;
+      if(vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    const res = new QuestionSingleInputSummary(this, this.locNoEntriesText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    this.visiblePanels.forEach((panel) => {
+      const locText = new LocalizableString(this, true, undefined, this.locTemplateTitle.localizationName);
+      locText.setJson(this.locTemplateTitle.getJson());
+      locText.onGetTextCallback = (text: string): string => {
+        return this.processSingleInputTitle(this.templateTitle, panel);
+      };
+      const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
+      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
+  }
+  protected singleInputMoveToFirstCore(): void {
+    let panel = this.singleInputQuestion?.parent;
+    while(!!panel && !!panel.parent) {
+      panel = panel.parent;
+    }
+    this.singInputEditPanel(<PanelModel>panel);
+  }
+  private singInputEditPanel(panel: PanelModel): void {
+    if(!panel) return;
+    const qs = panel.visibleQuestions;
+    if(qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
@@ -1309,7 +1403,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.displayMode === "list";
   }
   public get isRenderModeTab(): boolean {
-    return this.displayMode === "tab";
+    return this.displayMode === "tab" && !this.isSingleInputActive;
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -1528,8 +1622,11 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = index;
     }
-    if (this.survey) this.survey.dynamicPanelAdded(this);
-    return this.panelsCore[index];
+    const panel = this.panelsCore[index];
+    if (this.survey) {
+      this.survey.dynamicPanelAdded(this);
+    }
+    return panel;
   }
   private focusNewPanelCallback: () => void;
   private focusNewPanel() {
@@ -1650,6 +1747,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
+    this.singleInputOnRemoveItem(visIndex);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     this.isValueChangingInternally = true;
@@ -1790,11 +1888,11 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
     if (!Array.isArray(panels)) return;
     panels.forEach(panel => {
-      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {
@@ -2213,7 +2311,7 @@ export class QuestionPanelDynamicModel extends Question
     this.panelCount = newPanelCount;
     this.settingPanelCountBasedOnValue = false;
   }
-  public setQuestionValue(newValue: any) {
+  public setQuestionValue(newValue: any): void {
     if (this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
@@ -2222,7 +2320,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateIsAnswered();
   }
-  public onSurveyValueChanged(newValue: any) {
+  public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;
     super.onSurveyValueChanged(newValue);
     for (var i = 0; i < this.panelsCore.length; i++) {

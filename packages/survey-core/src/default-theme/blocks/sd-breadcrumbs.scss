@@ -1,0 +1,45 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
+.sd-breadcrumbs {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  gap: var(--lbr-breadcrumbs-gap, calcSize(1));
+  align-self: stretch;
+  flex-wrap: wrap;
+  padding-bottom: var(--lbr-page-header-breadcrumbs-margin-bottom, 20px);
+}
+
+.sd-breadcrumbs-item {
+  color: var(--lbr-breadcrumbs-item-text-color, $foreground-dim-light);
+  @include mixins.defaultFont;
+}
+
+.sd-breadcrumbs-item__button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: flex;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  color: unset;
+  font-size: unset;
+  font-family: unset;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.sd-breadcrumbs-separator {
+  display: flex;
+  width: var(--lbr-breadcrumbs-item-separator-icon-width, calcSize(1.5));
+  height: var(--lbr-breadcrumbs-item-separator-icon-height, calcSize(1.5));
+  justify-content: center;
+  align-items: center;
+  use {
+    fill: var(--lbr-breadcrumbs-item-separator-color, $foreground-dim-light);
+  }
+}
