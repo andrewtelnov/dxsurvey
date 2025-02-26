@@ -1,5 +1,9 @@
 <template>
-  <fieldset :class="question.getSelectBaseRootCss()" ref="root">
+  <fieldset
+    :class="question.getSelectBaseRootCss()"
+    :style="question.getContainerStyle()"
+    ref="root"
+  >
     <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="!question.hasColumns">
       <SvComponent

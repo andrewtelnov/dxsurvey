@@ -305,7 +305,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this.addNewItemToVisibleChoices(items, isAddAll);
   }
   public getSelectBaseRootCss(): string {
-    return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1).toString();
+    const isResponsive = this.isResponsive;
+    return new CssClassBuilder()
+      .append(super.getSelectBaseRootCss())
+      .append("sd-imagepicker--responvive", isResponsive)
+      .append("sd-imagepicker--static", !isResponsive)
+      .append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1)
+      .toString();
   }
 
   //responsive mode
@@ -387,6 +393,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     return this.responsiveColCount;
   }
+  @property() gridColCount: number = undefined;
+  getContainerStyle() {
+    if(!this.isResponsive) return {};
+    return {
+      gridAutoFlow: !this.gridColCount ? "column" : null,
+      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)`: null
+    };
+  }
 
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth = Math.floor(availableWidth);
@@ -404,21 +418,23 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       const minHeight = this.minImageHeight * this.imageScale;
       let colCount = this.colCount;
       let width: number;
+      const availableColumnsCount: number = calcAvailableColumnsCount(availableWidth, minWidth, gap);
       if (colCount === 0) {
         if ((gap + minWidth) * itemsCount - gap > availableWidth) {
-          let itemsInRow = calcAvailableColumnsCount(availableWidth, minWidth, gap);
-          width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
+          width = Math.floor((availableWidth - gap * (availableColumnsCount - 1)) / availableColumnsCount);
         } else {
           width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
         }
+        this.gridColCount = Math.max(Math.min(itemsCount, availableColumnsCount), 1);
+
       } else {
-        const availableColumnsCount = calcAvailableColumnsCount(availableWidth, minWidth, gap);
         if (availableColumnsCount < colCount) {
-          this.responsiveColCount = availableColumnsCount >= 1 ? availableColumnsCount : 1;
+          this.responsiveColCount = Math.max(availableColumnsCount, 1);
           colCount = this.responsiveColCount;
         } else {
           this.responsiveColCount = colCount;
         }
+        this.gridColCount = this.responsiveColCount;
         width = Math.floor((availableWidth - gap * (colCount - 1)) / colCount);
       }
       width = Math.max(minWidth, Math.min(width, maxWidth));

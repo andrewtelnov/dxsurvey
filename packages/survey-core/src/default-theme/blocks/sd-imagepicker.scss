@@ -1,13 +1,18 @@
 @use "../variables.scss" as *;
 
 .sd-imagepicker {
-  display: flex;
-  flex-wrap: wrap;
   padding: 0;
   border: none;
   gap: calcSize(2);
   width: 100%;
   margin: 0;
+}
+.sd-imagepicker--static {
+  display: flex;
+  flex-wrap: wrap;
+}
+.sd-imagepicker--responvive {
+  display: grid;
 }
 
 .sd-imagepicker--column {
@@ -16,15 +21,14 @@
 }
 
 @supports not (aspect-ratio: 1 / 1) {
-  .sd-imagepicker>div {
+  .sd-imagepicker > div {
     margin-right: calcSize(2);
   }
 }
 
 .sd-imagepicker__item {
-
   img,
-  .sd-imagepicker__image-container>div {
+  .sd-imagepicker__image-container > div {
     border-radius: calcCornerRadius(1);
     background-color: $background-dim-light;
   }

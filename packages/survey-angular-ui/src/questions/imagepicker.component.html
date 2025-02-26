@@ -1,15 +1,17 @@
-  <fieldset [class]="model.getSelectBaseRootCss()" #contentElement>
-      <legend class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
-      <ng-container *ngIf="!model.hasColumns">
-        <ng-container *ngFor="let item of model.visibleChoices">
-          <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
-        </ng-container>
+<fieldset [class]="model.getSelectBaseRootCss()" [style]="model.getContainerStyle()" #contentElement>
+  <legend class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
+  <ng-container *ngIf="!model.hasColumns">
+    <ng-container *ngFor="let item of model.visibleChoices">
+      <ng-template
+        [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="model.hasColumns">
+    <div *ngFor="let column of model.columns" [class]="model.getColumnClass()" role="presentation">
+      <ng-container *ngFor="let item of column">
+        <ng-template
+          [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
       </ng-container>
-      <ng-container *ngIf="model.hasColumns">
-        <div *ngFor="let column of model.columns" [class]="model.getColumnClass()" role="presentation">
-          <ng-container *ngFor="let item of column">
-            <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
-          </ng-container>
-        </div>
-      </ng-container>
-  </fieldset>
+    </div>
+  </ng-container>
+</fieldset>
