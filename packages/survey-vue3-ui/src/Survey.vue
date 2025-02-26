@@ -86,12 +86,6 @@
               ></SvComponent>
             </div>
           </template>
-          <SvComponent
-            :is="'sv-components-container'"
-            :survey="vueSurvey"
-            :container="'footer'"
-            :needRenderWrapper="false"
-          ></SvComponent>
           <div v-if="hasCompletedPage">
             <div
               v-html="getProcessedCompletedHtml()"
@@ -104,6 +98,12 @@
               :needRenderWrapper="true"
             ></SvComponent>
           </div>
+          <SvComponent
+            :is="'sv-components-container'"
+            :survey="vueSurvey"
+            :container="'footer'"
+            :needRenderWrapper="false"
+          ></SvComponent>
           <div
             v-if="vueSurvey.state === 'completedbefore'"
             :class="vueSurvey.completedBeforeCss"
